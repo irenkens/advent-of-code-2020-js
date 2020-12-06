@@ -8,6 +8,10 @@ const EYE_COLORS = Object.freeze([
   'amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth',
 ]);
 
+const isValueInRange = (value, min, max) => {
+  return value >= min && value <= max;
+};
+
 const isValidField = field => {
   const split = field.split(':');
   const key = split[0];
@@ -15,18 +19,18 @@ const isValidField = field => {
 
   switch (key) {
     case 'byr':
-      return +value >= 1920 && +value <= 2002;
+      return isValueInRange(+value, 1920, 2002);
     case 'iyr':
-      return +value >= 2010 && +value <= 2020;
+      return isValueInRange(+value, 2010, 2020);
     case 'eyr':
-      return +value >= 2020 && +value <= 2030;
+      return isValueInRange(+value, 2020, 2030);
     case 'hgt': {
       const height = value.slice(0, -2);
       if (value.endsWith('cm')) {
-        return +height >= 150 && +height <= 193;
+        return isValueInRange(+height, 150, 193);
       }
       if (value.endsWith('in')) {
-        return +height >= 59 && +height <= 76;
+        return isValueInRange(+height, 59, 76);
       }
       return false;
     }
