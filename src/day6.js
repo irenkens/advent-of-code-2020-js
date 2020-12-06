@@ -1,23 +1,23 @@
 import { intersection } from 'lodash';
 import { getInput, removeWhitespace, splitOnLineBreak, splitOnEmptyLine, printHeader } from './util';
 
-const getQuestions = group => {
+const getQuestionsAnswered = group => {
   return removeWhitespace(group).split('');
 };
 
-const getUniqueQuestions = group => {
-  return new Set(getQuestions(group)).size;
+const getUniqueQuestionsAnswered = group => {
+  return new Set(getQuestionsAnswered(group)).size;
 };
 
 const part1 = groups => {
-  return groups.reduce((total, group) => total + getUniqueQuestions(group), 0);
+  return groups.reduce((total, group) => total + getUniqueQuestionsAnswered(group), 0);
 };
 
 const part2 = groups => {
-  const personsPerGroup = groups.map(group => splitOnLineBreak(group));
-  return personsPerGroup.reduce((sum, person) => {
-    const questionsPerPerson = person.map(g => g.split(''));
-    const questionsAnsweredByAll = intersection(...questionsPerPerson);
+  const answersPerGroup = groups.map(group => splitOnLineBreak(group));
+  return answersPerGroup.reduce((sum, answers) => {
+    const questionsAnsweredPerPerson = answers.map(answer => answer.split(''));
+    const questionsAnsweredByAll = intersection(...questionsAnsweredPerPerson);
     return sum + questionsAnsweredByAll.length;
   }, 0);
 };
