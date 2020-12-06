@@ -12,3 +12,11 @@ export const printHeader = (filename, part, info = '') => {
   const day = path.basename(filename).match(/\d+/)[0];
   console.log(`----- Day ${day} - Part ${part}${info} -----`);
 };
+
+export const splitOnWhitespace = str => {
+  return str.split(/\s+/);
+};
+
+export const splitOnEmptyLine = str => {
+  return str.split(/\r?\n\r?\n/);
+};

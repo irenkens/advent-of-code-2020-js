@@ -1,4 +1,4 @@
-import { printHeader, getInput } from './util';
+import { getInput, splitOnEmptyLine, splitOnWhitespace, printHeader } from './util';
 
 const REQUIRED_FIELDS = Object.freeze([
   'byr', 'iyr', 'eyr', 'hgt', 'hcl', 'ecl', 'pid',
@@ -44,7 +44,7 @@ const isValidField = field => {
 };
 
 const getFields = passport => {
-  return passport.split(/\s+/).filter(field => field !== '');
+  return splitOnWhitespace(passport);
 };
 
 const hasRequiredFields = passport => {
@@ -72,7 +72,7 @@ const part2 = passports => {
 
 export const day4 = async () => {
   const input = await getInput(__filename);
-  const passports = input.split('\n\r');
+  const passports = splitOnEmptyLine(input);
 
   printHeader(__filename, 1);
   console.log(part1(passports));
