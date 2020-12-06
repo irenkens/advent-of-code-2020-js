@@ -1,4 +1,4 @@
-import { printHeader, getInput } from './util';
+import { getInput, splitOnLineBreak, printHeader } from './util';
 
 const part1 = numbers => {
   for (let i = 0; i < numbers.length - 1; i++) {
@@ -26,7 +26,7 @@ const part2 = numbers => {
 
 export const day1 = async () => {
   const input = await getInput(__filename);
-  const numbers = input.split('\n').map(line => +line);
+  const numbers = splitOnLineBreak(input).map(line => +line);
 
   printHeader(__filename, 1);
   console.log(part1(numbers));

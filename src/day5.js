@@ -1,4 +1,4 @@
-import { printHeader, getInput } from './util';
+import { getInput, splitOnLineBreak, printHeader } from './util';
 
 const getPosition = (lower, upper, lowerLetter, upperLetter, sequence) => {
   const range = [lower, upper];
@@ -35,7 +35,7 @@ const part2 = boardingPasses => {
 
 export const day5 = async () => {
   const input = await getInput(__filename);
-  const boardingPasses = input.split('\n');
+  const boardingPasses = splitOnLineBreak(input);
 
   printHeader(__filename, 1);
   console.log(part1(boardingPasses));

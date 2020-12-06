@@ -1,8 +1,8 @@
-import { printHeader, getInput } from './util';
+import { getInput, splitOnLineBreak, printHeader } from './util';
 
 const part1 = (lines, right, down) => {
   const map = lines.map(line => line.split(''));
-  const patternWidth = map[0].length - 1;
+  const patternWidth = map[0].length;
 
   let x = 0;
   let trees = 0;
@@ -30,7 +30,7 @@ const part2 = lines => {
 
 export const day3 = async () => {
   const input = await getInput(__filename);
-  const lines = input.split('\n');
+  const lines = splitOnLineBreak(input);
 
   printHeader(__filename, 1);
   console.log(part1(lines, 3, 1));

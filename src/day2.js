@@ -1,4 +1,4 @@
-import { printHeader, getInput } from './util';
+import { getInput, splitOnLineBreak, printHeader } from './util';
 
 const getLineVars = line => {
   const parts = line.split(' ');
@@ -41,7 +41,7 @@ const part2 = lines => {
 
 export const day2 = async () => {
   const input = await getInput(__filename);
-  const lines = input.split('\n');
+  const lines = splitOnLineBreak(input);
 
   printHeader(__filename, 1);
   console.log(part1(lines));
