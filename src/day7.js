@@ -1,45 +1,46 @@
 import { getInput, splitOnLineBreak, printHeader } from './util';
 
 const getUniqueParentColors = (rules, bagColor) => {
-  const parents = rules.filter(rule => {
-    const split = rule.split(' contain ');
-    return split[1].indexOf(bagColor) > -1;
-  });
+  const parents = rules.filter(rule => !rule.startsWith(bagColor) && rule.indexOf(bagColor) > -1);
 
-  const parentColors = parents.map(parent => {
-    return parent.split(' contain ')[0].replace(/\b bags?\b|/g, '');
-  });
-
-  if (parentColors.length === 0) {
+  if (parents.length === 0) {
     return [];
   }
+
+  const parentColors = parents.map(parent => parent.split(' ').slice(0, 2).join(' '));
 
   return new Set(
     [
       ...parentColors,
       ...parentColors.reduce(
-        (sum, parent) => [...sum, ...getUniqueParentColors(rules, parent)], [],
+        (colors, parent) => [...colors, ...getUniqueParentColors(rules, parent)], [],
       ),
     ],
   );
 };
 
-const getTotalNumberOfChildren = (rules, bagColor) => {
-  const rule = rules.find(r => r.startsWith(bagColor));
-  const children = rule.split(' contain ')[1].replace('.', '').split(', ');
+const getNumberOfChildren = child => +child.substr(0, child.indexOf(' '));
 
-  if (children.find(child => child === 'no other bags')) {
+const getColor = child => {
+  const firstSpace = child.indexOf(' ');
+  const lastSpace = child.lastIndexOf(' ');
+  return child.substr(firstSpace + 1, lastSpace - 2);
+};
+
+const getBagsRequired = (rules, bagColor) => {
+  const bagRule = rules.find(r => r.startsWith(bagColor));
+
+  if (bagRule.includes('no other bags')) {
     return 0;
   }
 
-  const numChildren = children.reduce((total, child) => total + +child.substr(0, child.indexOf(' ')), 0);
-  return numChildren + children.reduce(
-    (sum, child) => {
-      const number = +child.substr(0, child.indexOf(' '));
-      const color = child.substr(child.indexOf(' ') + 1).replace(/\b bags?\b|/g, '');
-      return sum + number * getTotalNumberOfChildren(rules, color);
-    }, 0,
-  );
+  const children = bagRule.split('contain ')[1].split(', ');
+
+  return children.reduce((total, child) => {
+    const color = getColor(child);
+    const numChilds = getNumberOfChildren(child);
+    return total + numChilds + numChilds * getBagsRequired(rules, color);
+  }, 0);
 };
 
 const MY_BAG = 'shiny gold';
@@ -49,7 +50,7 @@ const part1 = rules => {
 };
 
 const part2 = rules => {
-  return getTotalNumberOfChildren(rules, MY_BAG);
+  return getBagsRequired(rules, MY_BAG);
 };
 
 export const day7 = async () => {
