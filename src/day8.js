@@ -6,69 +6,47 @@ const getValues = instruction => {
   return { operation, argument };
 };
 
-const doesTerminate = instructions => {
-  let currentIndex = 0;
+const changeOperation = instruction => {
+  const { operation } = getValues(instruction);
+  return instruction.replace(operation, operation === 'jmp' ? 'nop' : 'jmp');
+};
+
+const getNewInstructions = (instructions, index) => {
+  const newInstructions = [...instructions];
+  newInstructions[index] = changeOperation(instructions[index]);
+  return newInstructions;
+};
+
+const runInstructions = instructions => {
+  let index = 0;
+  let accumulator = 0;
   const visited = [];
 
-  while (!visited.includes(currentIndex)) {
-    if (currentIndex === instructions.length) {
-      return true;
-    }
-
-    visited.push(currentIndex);
-    const instruction = instructions[currentIndex];
-    const { operation, argument } = getValues(instruction);
-
-    if (operation === 'acc') {
-      currentIndex++;
-    } else if (operation === 'jmp') {
-      currentIndex += argument;
-    } else if (operation === 'nop') {
-      currentIndex++;
-    }
+  while (!visited.includes(index) && index < instructions.length) {
+    visited.push(index);
+    const { operation, argument } = getValues(instructions[index]);
+    accumulator += operation === 'acc' ? argument : 0;
+    index += operation === 'jmp' ? argument : 1;
   }
-  return false;
+  const terminated = index === instructions.length;
+  return { terminated, accumulator };
 };
 
 const part1 = instructions => {
-  let accumulator = 0;
-  let currentIndex = 0;
-  const visited = [];
-
-  while (!visited.includes(currentIndex) && currentIndex < instructions.length) {
-    visited.push(currentIndex);
-    const { operation, argument } = getValues(instructions[currentIndex]);
-
-    if (operation === 'acc') {
-      accumulator += argument;
-      currentIndex++;
-    } else if (operation === 'jmp') {
-      currentIndex += argument;
-    } else if (operation === 'nop') {
-      currentIndex++;
-    }
-  }
-  return accumulator;
+  return runInstructions(instructions).accumulator;
 };
 
 const part2 = instructions => {
-  let newInstructions = [...instructions];
-  let currentIndex = 0;
+  for (let index = 0; index < instructions.length; index++) {
+    const { operation } = getValues(instructions[index]);
+    if (operation === 'acc') continue;
 
-  while (!doesTerminate(newInstructions)) {
-    const instruction = instructions[currentIndex];
-    const { operation, argument } = getValues(instruction);
-
-    newInstructions = [...instructions];
-    if (operation === 'jmp') {
-      newInstructions[currentIndex] = `nop ${argument}`;
-    } else if (operation === 'nop') {
-      newInstructions[currentIndex] = `jmp ${argument}`;
-    }
-    currentIndex++;
+    const newInstructions = getNewInstructions(instructions, index);
+    const { terminated, accumulator } = runInstructions(newInstructions);
+    if (terminated) return accumulator;
   }
 
-  return part1(newInstructions);
+  return -1;
 };
 
 export const day8 = async () => {

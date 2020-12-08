@@ -7,6 +7,7 @@
         "arrow-parens": [2,"as-needed"],
         "no-plusplus": 0,
         "object-curly-newline": 0,
-        "arrow-body-style": 0
+        "arrow-body-style": 0,
+        "no-continue": 0
     }
 }
