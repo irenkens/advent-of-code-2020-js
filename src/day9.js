@@ -1,7 +1,17 @@
 import { getInput, splitOnLineBreak, printHeader } from './util';
 
-const canFindSum = (number, range) => {
-  return range.find(first => range.find(second => second + first === number && second !== first));
+const canMakeSum = (sum, previousNumbers) => {
+  for (let i = 0; i < previousNumbers.length - 1; i++) {
+    for (let k = i + 1; k < previousNumbers.length; k++) {
+      const first = previousNumbers[i];
+      const second = previousNumbers[k];
+
+      if (second + first === sum && second !== first) {
+        return true;
+      }
+    }
+  }
+  return false;
 };
 
 const MAX = 25;
@@ -10,7 +20,7 @@ const part1 = numbers => {
   for (let i = MAX; i < numbers.length; i++) {
     const previousNumbers = numbers.slice(i - MAX, i);
     const number = numbers[i];
-    if (!canFindSum(number, previousNumbers)) {
+    if (!canMakeSum(number, previousNumbers)) {
       return number;
     }
   }
