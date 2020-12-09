@@ -8,15 +8,11 @@ const getUniqueParentColors = (rules, bagColor) => {
   }
 
   const parentColors = parents.map(parent => parent.split(' ').slice(0, 2).join(' '));
-
-  return new Set(
-    [
-      ...parentColors,
-      ...parentColors.reduce(
-        (colors, parent) => [...colors, ...getUniqueParentColors(rules, parent)], [],
-      ),
-    ],
+  const allParentColors = parentColors.reduce(
+    (colors, parent) => [...colors, ...getUniqueParentColors(rules, parent)], [...parentColors],
   );
+
+  return new Set(allParentColors);
 };
 
 const getNumberOfChildren = child => +child.substr(0, child.indexOf(' '));
