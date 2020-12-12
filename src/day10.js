@@ -44,6 +44,7 @@ const getPossibilities = adapters => {
       we would end up with an invalid sequence of adapters (joltage difference would be > 3). So for
       any groups of three the number of possibilities is not 2^3 but 2^3 - 1 = 7. Each remaining
       optional adapter has 2 possibilities (either you choose it or not).
+      NOTE: this solution probably doesn't work if there are any groups > 3
   */
   const groupsOfThree = getGroupsOfThree(optionalAdapters);
   const remaining = numOptional - (groupsOfThree * 3);
