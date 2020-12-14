@@ -21,6 +21,7 @@
     "nodemon": "^2.0.4"
   },
   "dependencies": {
-    "lodash": "^4.17.20"
+    "lodash": "^4.17.20",
+    "mathjs": "^8.1.0"
   }
 }

@@ -1,6 +1,6 @@
 {
     "extends": "airbnb-base",
-     "rules": {
+    "rules": {
         "import/prefer-default-export": 0,
         "linebreak-style": 0,
         "no-console": 0,
@@ -9,5 +9,8 @@
         "object-curly-newline": 0,
         "arrow-body-style": 0,
         "no-continue": 0
+    },
+    "env": {
+        "es2020": true
     }
 }
