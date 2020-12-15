@@ -16,14 +16,13 @@ const part1 = numbers => {
 const part2 = numbers => {
   const spoken = [...numbers];
   const lastIndices = new Map();
-  spoken.slice(0, spoken.length - 1).forEach(num => {
+  spoken.forEach(num => {
     lastIndices.set(num, spoken.indexOf(num));
   });
 
   for (let i = spoken.length - 1; i < 30000000; i++) {
     const number = spoken[i];
-    const lastIndex = lastIndices.get(number);
-    const next = lastIndices.has(number) ? i - lastIndex : 0;
+    const next = lastIndices.has(number) ? i - lastIndices.get(number) : 0;
     spoken.push(next);
     lastIndices.set(number, i);
   }
