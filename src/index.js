@@ -14,6 +14,7 @@ import { day12 } from './day12';
 import { day13 } from './day13';
 import { day14 } from './day14';
 import { day15 } from './day15';
+import { day16 } from './day16';
 
 (async () => {
   await day1();
@@ -32,4 +33,5 @@ import { day15 } from './day15';
   await day13();
   await day14();
   await day15();
+  await day16();
 })();
