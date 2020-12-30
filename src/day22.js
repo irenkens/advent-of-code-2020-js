@@ -28,6 +28,11 @@ const part1 = (playerOne, playerTwo) => {
   return getScore([...deckOne, ...deckTwo]);
 };
 
+const PLAYER = Object.freeze({
+  ONE: Symbol('one'),
+  TWO: Symbol('two'),
+});
+
 // Terribly slow solution...
 const getWinner = (playerOne, playerTwo) => {
   const deckOne = [...playerOne];
@@ -40,37 +45,33 @@ const getWinner = (playerOne, playerTwo) => {
     }) != null;
 
     if (loop) {
-      return { winner: 'playerOne', winningDeck: deckOne };
+      return { winner: PLAYER.ONE, winningDeck: deckOne };
     }
 
     history.push({ handOne: [...deckOne], handTwo: [...deckTwo] });
+
     const cardOne = deckOne.shift();
     const cardTwo = deckTwo.shift();
+
+    let winner = null;
     if (deckOne.length >= cardOne && deckTwo.length >= cardTwo) {
-      const { winner } = getWinner([...deckOne.slice(0, cardOne)], [...deckTwo.slice(0, cardTwo)]);
-      if (winner === 'playerOne') {
-        deckOne.push(cardOne);
-        deckOne.push(cardTwo);
-      } else {
-        deckTwo.push(cardTwo);
-        deckTwo.push(cardOne);
-      }
-    } else if (cardOne > cardTwo) {
+      winner = getWinner([...deckOne.slice(0, cardOne)], [...deckTwo.slice(0, cardTwo)]).winner;
+    } else {
+      winner = cardOne > cardTwo ? PLAYER.ONE : PLAYER.TWO;
+    }
+
+    if (winner === PLAYER.ONE) {
       deckOne.push(cardOne);
       deckOne.push(cardTwo);
     } else {
       deckTwo.push(cardTwo);
       deckTwo.push(cardOne);
     }
-
-    if (isEqual(playerOne, deckOne) && isEqual(playerTwo, deckTwo)) {
-      return { winner: 'playerOne', winningDeck: deckOne };
-    }
   }
 
-  const winner = deckOne.length === 0 ? 'playerTwo' : 'playerOne';
-  const winningDeck = deckOne.length === 0 ? deckTwo : deckOne;
-  return { winner, winningDeck };
+  return deckOne.length === 0
+    ? { winner: PLAYER.TWO, winningDeck: deckTwo }
+    : { winner: PLAYER.ONE, winningDeck: deckOne };
 };
 
 const part2 = (playerOne, playerTwo) => {
