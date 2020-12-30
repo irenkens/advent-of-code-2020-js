@@ -1,12 +1,12 @@
 import { getInput, printHeader } from './util';
 
-const moveCups = cups => {
+const moveCups = (cups, maxCup = 9) => {
   const currentCup = cups[0];
   const threeCups = cups.splice(1, 3);
-  let destinationCup = currentCup === 1 ? 9 : currentCup - 1;
+  let destinationCup = currentCup === 1 ? maxCup : currentCup - 1;
 
   while (cups.indexOf(destinationCup) === -1) {
-    destinationCup = destinationCup === 1 ? 9 : destinationCup - 1;
+    destinationCup = destinationCup === 1 ? maxCup : destinationCup - 1;
   }
 
   const sliceIndex = cups.indexOf(destinationCup) + 1;
@@ -23,7 +23,8 @@ const part1 = cups => {
   }
 
   // shift cups so that cup 1 is at index 0
-  const ordered = newCups.concat(newCups.splice(0, cups.indexOf(1) + 1));
+  const indexOne = newCups.indexOf(1);
+  const ordered = newCups.slice(indexOne).concat(newCups.splice(0, indexOne));
   return ordered.reduce((result, cup) => `${result}${cup}`, '').slice(1);
 };
 
