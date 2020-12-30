@@ -1,4 +1,13 @@
+import { isEqual } from 'lodash';
 import { getInput, splitOnEmptyLine, splitOnLineBreak, printHeader } from './util';
+
+const getScore = deck => {
+  let sum = 0;
+  for (let i = 0; i < deck.length; i++) {
+    sum += deck[i] * (deck.length - i);
+  }
+  return sum;
+};
 
 const part1 = (playerOne, playerTwo) => {
   const deckOne = [...playerOne];
@@ -16,16 +25,57 @@ const part1 = (playerOne, playerTwo) => {
     }
   }
 
-  const resultArray = [...deckOne, ...deckTwo];
-  let sum = 0;
-  for (let i = 0; i < resultArray.length; i++) {
-    sum += resultArray[i] * (resultArray.length - i);
-  }
-  return sum;
+  return getScore([...deckOne, ...deckTwo]);
 };
 
-const part2 = list => {
-  return 'not implemented';
+// Terribly slow solution...
+const getWinner = (playerOne, playerTwo) => {
+  const deckOne = [...playerOne];
+  const deckTwo = [...playerTwo];
+  const history = [];
+
+  while (deckOne.length > 0 && deckTwo.length > 0) {
+    const loop = history.find(round => {
+      return isEqual(round.handOne, deckOne) && isEqual(round.handTwo, deckTwo);
+    }) != null;
+
+    if (loop) {
+      return { winner: 'playerOne', winningDeck: deckOne };
+    }
+
+    history.push({ handOne: [...deckOne], handTwo: [...deckTwo] });
+    const cardOne = deckOne.shift();
+    const cardTwo = deckTwo.shift();
+    if (deckOne.length >= cardOne && deckTwo.length >= cardTwo) {
+      const { winner } = getWinner([...deckOne.slice(0, cardOne)], [...deckTwo.slice(0, cardTwo)]);
+      if (winner === 'playerOne') {
+        deckOne.push(cardOne);
+        deckOne.push(cardTwo);
+      } else {
+        deckTwo.push(cardTwo);
+        deckTwo.push(cardOne);
+      }
+    } else if (cardOne > cardTwo) {
+      deckOne.push(cardOne);
+      deckOne.push(cardTwo);
+    } else {
+      deckTwo.push(cardTwo);
+      deckTwo.push(cardOne);
+    }
+
+    if (isEqual(playerOne, deckOne) && isEqual(playerTwo, deckTwo)) {
+      return { winner: 'playerOne', winningDeck: deckOne };
+    }
+  }
+
+  const winner = deckOne.length === 0 ? 'playerTwo' : 'playerOne';
+  const winningDeck = deckOne.length === 0 ? deckTwo : deckOne;
+  return { winner, winningDeck };
+};
+
+const part2 = (playerOne, playerTwo) => {
+  const { winningDeck } = getWinner(playerOne, playerTwo);
+  return getScore(winningDeck);
 };
 
 export const day22 = async () => {
