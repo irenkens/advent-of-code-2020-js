@@ -113,7 +113,7 @@ const cleanDirections = directions => {
   return concat(...w, ...e, ...sw, ...ne, ...se, ...nw).sort();
 };
 
-const part1 = list => {
+const getMap = list => {
   const cleaned = [];
   for (let i = 0; i < list.length; i++) {
     const directions = getDirections(list[i]);
@@ -125,18 +125,73 @@ const part1 = list => {
   const cleanSorted = cleaned.map(c => c.reduce((total, r) => `${total}${r}`, ''));
 
   // Construct a map that keeps track of how many times a tile has been identified.
-  const map = {};
+  const map = new Map();
   cleanSorted.forEach(clean => {
-    const current = map[clean];
-    map[clean] = current ? current + 1 : 1;
+    const current = map.get(clean);
+    map.set(clean, current ? current + 1 : 1);
   });
 
-  // Return the tiles that have been identified an odd number of times (= black tiles).
-  return Object.values(map).filter(v => v % 2 !== 0).length;
+  return map;
 };
 
-const part2 = directions => {
-  return 'not implemented';
+const part1 = list => {
+  const map = getMap(list);
+  // Return the tiles that have been identified an odd number of times (= black tiles).
+  return Array.from(map.values()).filter(v => v % 2 !== 0).length;
+};
+
+const updateMap = map => {
+  const newMap = new Map(map);
+  const tiles = Array.from(map.keys());
+
+  tiles.forEach(tile => {
+    const adjacent = ['w', 'e', 'se', 'sw', 'ne', 'nw']
+      .map(d => cleanDirections(getDirections(`${tile}${d}`)))
+      .map(c => c.reduce((total, r) => `${total}${r}`, ''));
+
+    // get number of black adjacent tiles
+    const adjacentBlack = adjacent.map(a => map.get(a) || 0).filter(v => v % 2 !== 0).length;
+    const color = map.get(tile);
+    if (color % 2 === 0 && adjacentBlack === 2) {
+      newMap.set(tile, 1);
+    } else if (color % 2 !== 0 && (adjacentBlack === 0 || adjacentBlack > 2)) {
+      newMap.set(tile, 0);
+    }
+
+    // update map with tiles if they aren't in there yet
+    adjacent.forEach(a => {
+      if (!map.has(a)) {
+        newMap.set(a, 0);
+      }
+    });
+  });
+  return newMap;
+};
+
+const addNeighbors = map => {
+  const newMap = new Map(map);
+  const tiles = Array.from(newMap.keys());
+  tiles.forEach(tile => {
+    const adjacent = ['w', 'e', 'se', 'sw', 'ne', 'nw']
+      .map(d => cleanDirections(getDirections(`${tile}${d}`)))
+      .map(c => c.reduce((total, r) => `${total}${r}`, ''));
+
+    adjacent.forEach(a => {
+      if (!newMap.has(a)) {
+        newMap.set(a, 0);
+      }
+    });
+  });
+  return newMap;
+};
+
+// TODO: refactor to be faster, currently takes ~2m
+const part2 = list => {
+  let newMap = new Map(addNeighbors(getMap(list)));
+  for (let i = 0; i < 100; i++) {
+    newMap = updateMap(newMap);
+  }
+  return Array.from(newMap.values()).filter(v => v % 2 !== 0).length;
 };
 
 export const day24 = async () => {
