@@ -1,14 +1,15 @@
 import { concat } from 'lodash';
 import { getInput, splitOnLineBreak, printHeader } from './util';
 
-const getDirections = line => {
+// Get the directions for a single tile as an array
+const getDirections = tile => {
   const directions = [];
-  for (let i = 0; i < line.length; i++) {
-    const letter = line[i];
+  for (let i = 0; i < tile.length; i++) {
+    const letter = tile[i];
     if (letter === 'w' || letter === 'e') {
       directions.push(letter);
     } else {
-      const nextLetter = line[i + 1];
+      const nextLetter = tile[i + 1];
       directions.push(`${letter}${nextLetter}`);
       i++;
     }
@@ -16,98 +17,100 @@ const getDirections = line => {
   return directions;
 };
 
-// TODO: refactor
+// Clean the tile directions so that the shortest path of directions is left
 const cleanDirections = directions => {
-  const countW = directions.filter(d => d === 'w').length;
-  const countE = directions.filter(d => d === 'e').length;
-  const countSw = directions.filter(d => d === 'sw').length;
-  const countNe = directions.filter(d => d === 'ne').length;
-  const countSe = directions.filter(d => d === 'se').length;
-  const countNw = directions.filter(d => d === 'nw').length;
+  let countW = directions.filter(d => d === 'w').length;
+  let countE = directions.filter(d => d === 'e').length;
+  let countSw = directions.filter(d => d === 'sw').length;
+  let countNe = directions.filter(d => d === 'ne').length;
+  let countSe = directions.filter(d => d === 'se').length;
+  let countNw = directions.filter(d => d === 'nw').length;
 
-  // the following doubles cancel each other out:
-  // e + w, sw + ne, se + nw
-  const removeWE = Math.min(countW, countE);
+  // The following doubles cancel each other out: e w, sw ne, se nw
+  // So we can remove any of these pairs safely from the directions.
+  const removeEW = Math.min(countW, countE);
   const removeSwNe = Math.min(countSw, countNe);
   const removeSeNw = Math.min(countSe, countNw);
 
-  const actualW = countW - removeWE;
-  const actualE = countE - removeWE;
-  const actualSw = countSw - removeSwNe;
-  const actualNe = countNe - removeSwNe;
-  const actualSe = countSe - removeSeNw;
-  const actualNw = countNw - removeSeNw;
+  countE -= removeEW;
+  countW -= removeEW;
+  countSw -= removeSwNe;
+  countNe -= removeSwNe;
+  countSe -= removeSeNw;
+  countNw -= removeSeNw;
 
-  // the following triples cancel each other out:
-  // w + ne + se, e + nw + sw
-  const removeTripleE = Math.min(actualE, actualNw, actualSw);
-  const removeTripleW = Math.min(actualW, actualNe, actualSe);
+  // The following triples cancel each other out: w ne se, e nw sw
+  // So we can remove any of these triples safely from the directions.
+  const removeTripleW = Math.min(countW, countNe, countSe);
+  const removeTripleE = Math.min(countE, countNw, countSw);
 
-  let numberW = countW - removeWE - removeTripleW;
-  let numberE = countE - removeWE - removeTripleE;
-  let numberSw = countSw - removeSwNe - removeTripleE;
-  let numberNe = countNe - removeSwNe - removeTripleW;
-  let numberSe = countSe - removeSeNw - removeTripleW;
-  let numberNw = countNw - removeSeNw - removeTripleE;
+  countW -= removeTripleW;
+  countE -= removeTripleE;
+  countSw -= removeTripleE;
+  countNe -= removeTripleW;
+  countSe -= removeTripleW;
+  countNw -= removeTripleE;
 
-  // the following doubles can be replaced with a single direction:
-  // w + se = sw
-  // e + sw = se
-  // w + ne = nw
-  // e + nw = ne
-  // nw + sw = w
-  // ne + se = e
-  const replaceWSe = Math.min(numberW, numberSe);
-  const replaceESw = Math.min(numberE, numberSw);
-  const replaceWNe = Math.min(numberW, numberNe);
-  const replaceENw = Math.min(numberE, numberNw);
-  const replaceNwSw = Math.min(numberNw, numberSw);
-  const replaceNeSe = Math.min(numberNe, numberSe);
+  // The following doubles can be replaced with a single direction:
+  // w se = sw
+  // e sw = se
+  // w ne = nw
+  // e nw = ne
+  // nw sw = w
+  // ne se = e
+  // So find any of these doubles, remove them and add the new direction
+  const replaceWSe = Math.min(countW, countSe);
+  const replaceESw = Math.min(countE, countSw);
+  const replaceWNe = Math.min(countW, countNe);
+  const replaceENw = Math.min(countE, countNw);
+  const replaceNwSw = Math.min(countNw, countSw);
+  const replaceNeSe = Math.min(countNe, countSe);
 
   if (replaceWSe > 0) {
-    numberW -= replaceWSe;
-    numberSe -= replaceWSe;
-    numberSw += replaceWSe;
+    countW -= replaceWSe;
+    countSe -= replaceWSe;
+    countSw += replaceWSe;
   }
 
   if (replaceESw > 0) {
-    numberE -= replaceESw;
-    numberSw -= replaceESw;
-    numberSe += replaceESw;
+    countE -= replaceESw;
+    countSw -= replaceESw;
+    countSe += replaceESw;
   }
 
   if (replaceWNe > 0) {
-    numberW -= replaceWNe;
-    numberNe -= replaceWNe;
-    numberNw += replaceWNe;
+    countW -= replaceWNe;
+    countNe -= replaceWNe;
+    countNw += replaceWNe;
   }
 
   if (replaceENw > 0) {
-    numberE -= replaceENw;
-    numberNw -= replaceENw;
-    numberNe += replaceENw;
+    countE -= replaceENw;
+    countNw -= replaceENw;
+    countNe += replaceENw;
   }
 
   if (replaceNwSw > 0) {
-    numberNw -= replaceNwSw;
-    numberSw -= replaceNwSw;
-    numberW += replaceNwSw;
+    countNw -= replaceNwSw;
+    countSw -= replaceNwSw;
+    countW += replaceNwSw;
   }
 
   if (replaceNeSe > 0) {
-    numberNe -= replaceNeSe;
-    numberSe -= replaceNeSe;
-    numberE += replaceNeSe;
+    countNe -= replaceNeSe;
+    countSe -= replaceNeSe;
+    countE += replaceNeSe;
   }
 
-  const realW = Array(numberW).fill('w');
-  const realE = Array(numberE).fill('e');
-  const realSw = Array(numberSw).fill('sw');
-  const realNe = Array(numberNe).fill('ne');
-  const realSe = Array(numberSe).fill('se');
-  const realNw = Array(numberNw).fill('nw');
+  // Construct the shortest path of directions
+  const w = Array(countW).fill('w');
+  const e = Array(countE).fill('e');
+  const sw = Array(countSw).fill('sw');
+  const ne = Array(countNe).fill('ne');
+  const se = Array(countSe).fill('se');
+  const nw = Array(countNw).fill('nw');
 
-  return concat(...realW, ...realE, ...realSw, ...realNe, ...realSe, ...realNw);
+  return concat(...w, ...e, ...sw, ...ne, ...se, ...nw).sort();
 };
 
 const part1 = list => {
@@ -117,13 +120,18 @@ const part1 = list => {
     const clean = cleanDirections(directions);
     cleaned.push(clean);
   }
-  const cleanSorted = cleaned.map(c => c.sort().reduce((total, r) => `${total}${r}`, ''));
+
+  // Map the shortest paths to strings again
+  const cleanSorted = cleaned.map(c => c.reduce((total, r) => `${total}${r}`, ''));
+
+  // Construct a map that keeps track of how many times a tile has been identified.
   const map = {};
   cleanSorted.forEach(clean => {
     const current = map[clean];
     map[clean] = current ? current + 1 : 1;
   });
 
+  // Return the tiles that have been identified an odd number of times (= black tiles).
   return Object.values(map).filter(v => v % 2 !== 0).length;
 };
 
