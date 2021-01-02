@@ -198,7 +198,7 @@ const part2 = tiles => {
 
   for (let i = 0; i < MAX - 1; i++) {
     for (let k = 0; k < MAX; k++) {
-      if (i === 0 && k > 0 && k < MAX - 2) {
+      if (i === 0 && k > 0 && k < MAX - 1) {
         const me = grid[i][k];
         const neighbors = tileNeighbors.get(me);
         const possible = difference(neighbors, grid.flat());
@@ -207,22 +207,11 @@ const part2 = tiles => {
 
         grid[0][k + 1] = right;
         grid[1][k] = bottom;
-        continue;
-      }
 
-      if (i === 0 && k === MAX - 2) {
-        const me = grid[i][k];
-        const neighbors = tileNeighbors.get(me);
-        const possible = difference(neighbors, grid.flat());
-        const topRightCorner = possible.filter(id => tileNeighbors.get(id).length === 2)[0];
-        const bottom = possible.filter(id => id !== topRightCorner)[0];
-
-        grid[0][k + 1] = topRightCorner;
-        grid[1][k] = bottom;
-
-        const belowTopRightCorner = difference(tileNeighbors.get(topRightCorner), grid.flat())[0];
-
-        grid[1][k + 1] = belowTopRightCorner;
+        if (k === MAX - 2) {
+          const belowTopRightCorner = difference(tileNeighbors.get(right), grid.flat())[0];
+          grid[1][k + 1] = belowTopRightCorner;
+        }
         continue;
       }
 
