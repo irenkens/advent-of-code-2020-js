@@ -28,8 +28,8 @@ const part1 = publicKeys => {
   return getEncryptionKey(doorKey, cardLoop);
 };
 
-const part2 = publicKeys => {
-  return 'not implemented';
+const part2 = () => {
+  return 'DONE!';
 };
 
 export const day25 = async () => {
@@ -39,5 +39,5 @@ export const day25 = async () => {
   printHeader(__filename, 1);
   console.log(part1(publicKeys));
   printHeader(__filename, 2);
-  console.log(part2(publicKeys));
+  console.log(part2());
 };
