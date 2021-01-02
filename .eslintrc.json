@@ -8,7 +8,8 @@
         "no-plusplus": 0,
         "object-curly-newline": 0,
         "arrow-body-style": 0,
-        "no-continue": 0
+        "no-continue": 0,
+        "max-len": [2, 120]
     },
     "env": {
         "es2020": true
